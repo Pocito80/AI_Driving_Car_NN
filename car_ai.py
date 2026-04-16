@@ -1,7 +1,7 @@
 import numpy as np
- 
+import pickle
 
-np.random.seed(0)
+np.random.seed(1)
 
 X = [1, 2, 3, 2.5]
 
@@ -22,7 +22,6 @@ class Activation_Softmax:
         exp_values = np.exp(inputs - np.max(inputs, axis=1, keepdims=True))
         probabilities = exp_values / np.sum(exp_values, axis=1, keepdims=True)
         self.output = probabilities
-        # return self.output
 
 
 class Neural_Network:
@@ -42,37 +41,62 @@ class Neural_Network:
         self.output_layer.forward(hidden_output)
         return self.output_layer.output
     
-    def get_weights(self):
-        self.weights = []
-        self.weights.append(self.input_layer.weights)
+    def get_model_paramiters(self):
+        self.model_paramiters = []
+        self.model_paramiters.append(self.input_layer.weights)
+        self.model_paramiters.append(self.input_layer.biases)
         for i in range(len(self.hidden_layers)):
-            self.weights.append(self.hidden_layers[i].weights)
-        self.weights.append(self.output_layer.weights)
+            self.model_paramiters.append(self.hidden_layers[i].weights)
+            self.model_paramiters.append(self.hidden_layers[i].biases)
+        self.model_paramiters.append(self.output_layer.weights)
+        self.model_paramiters.append(self.output_layer.biases)
 
-    def set_weights(self, weights):
-        self.input_layer.weights = weights[0]
+    def set_model_paramiters(self, new_paramiters):
+        self.input_layer.weights = new_paramiters[0]
+        self.input_layer.biases = new_paramiters[1]
         for i in range(len(self.hidden_layers)):
-            self.hidden_layers[i].weights = weights[i+1]
-        self.output_layer.weights = weights[len(weights)-1]
+            self.hidden_layers[i].weights = new_paramiters[(i+1)*2]
+            self.hidden_layers[i].biases = new_paramiters[(i+1)*2+1]
+        self.output_layer.weights = new_paramiters[len(new_paramiters)-2]
+        self.output_layer.biases = new_paramiters[len(new_paramiters)-1]
+
     
     def mutate(self, mutation_rate):
-        self.get_weights()
+        self.get_model_paramiters()
         def mutation_process(x):
             if np.random.rand(1) <= mutation_rate:
                 return x + np.random.normal(0,0.5,None)
             return x
         vectorized_mutation_process = np.vectorize(mutation_process)
-        self.weights = [vectorized_mutation_process(arr) for arr in self.weights]
-        self.set_weights(self.weights)
+        self.model_paramiters = [vectorized_mutation_process(arr) for arr in self.model_paramiters]
+        self.set_model_paramiters(self.model_paramiters)
+        
 
+    def save_to_file(self, filename):
+        self.get_model_paramiters()
+        np.save(filename, np.array(self.model_paramiters, dtype=object), allow_pickle=True)
 
+    def load_from_file(self, filename):
+        loaded_paramiters = np.load(filename, allow_pickle=True)
+        loaded_paramiters_list = loaded_paramiters.tolist()
+        self.set_model_paramiters(loaded_paramiters_list)   
 
 NN = Neural_Network(4, 2, 5, 2)
-# NN.get_weights()
-NN.mutate(0.05)
-# NN.get_weights()
+# NN.get_biases()
+# NN.get_model_paramiters()
+# NN.mutate(0.05)
+# NN.get_model_paramiters()
+# NN.forward(X)
+# print(NN.output_layer.output)
+
+# NN.save_to_file("model_paramiters3.npy")
+# NN.get_model_paramiters()
+NN.load_from_file("model_paramiters3.npy")
+# # NN.get_model_paramiters()
 NN.forward(X)
 print(NN.output_layer.output)
+# NN.save_to_file("model_paramiters3.pkl")
+# NN.save_to_file("model_paramiters3.npz")
 
 # print(np.random.rand(1))
 
