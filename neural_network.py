@@ -1,13 +1,8 @@
 import numpy as np
-import pickle
-
-np.random.seed(1)
-
-X = [1, 2, 3, 2.5]
 
 class Layer_Dense:
     def __init__(self, n_inputs, n_neurons):
-        self.weights = 0.10 * np.random.randn(n_inputs, n_neurons)
+        self.weights = 0.5 * np.random.randn(n_inputs, n_neurons)
         self.biases = np.zeros((1, n_neurons))
     def forward(self, inputs):
         self.output = np.dot(inputs, self.weights) + self.biases
@@ -17,11 +12,16 @@ class Activation_ReLU:
         self.output = np.maximum(0, inputs)
         return self.output
 
-class Activation_Softmax:
+# class Activation_Softmax:
+#     def forward(self, inputs):
+#         exp_values = np.exp(inputs - np.max(inputs, axis=1, keepdims=True))
+#         probabilities = exp_values / np.sum(exp_values, axis=1, keepdims=True)
+#         self.output = probabilities
+
+class Activation_Tanh:
     def forward(self, inputs):
-        exp_values = np.exp(inputs - np.max(inputs, axis=1, keepdims=True))
-        probabilities = exp_values / np.sum(exp_values, axis=1, keepdims=True)
-        self.output = probabilities
+        self.output = np.tanh(inputs)
+        return self.output
 
 
 class Neural_Network:
@@ -39,6 +39,7 @@ class Neural_Network:
             hidden_layer.forward(hidden_output)
             hidden_output = Activation_ReLU().forward(hidden_layer.output)
         self.output_layer.forward(hidden_output)
+        self.output_layer.output = Activation_Tanh().forward(self.output_layer.output)
         return self.output_layer.output
     
     def get_model_paramiters(self):
@@ -65,7 +66,7 @@ class Neural_Network:
         self.get_model_paramiters()
         def mutation_process(x):
             if np.random.rand(1) <= mutation_rate:
-                return x + np.random.normal(0,0.5,None)
+                return x + np.random.normal(0,0.0333,None)
             return x
         vectorized_mutation_process = np.vectorize(mutation_process)
         self.model_paramiters = [vectorized_mutation_process(arr) for arr in self.model_paramiters]
@@ -79,49 +80,4 @@ class Neural_Network:
     def load_from_file(self, filename):
         loaded_paramiters = np.load(filename, allow_pickle=True)
         loaded_paramiters_list = loaded_paramiters.tolist()
-        self.set_model_paramiters(loaded_paramiters_list)   
-
-NN = Neural_Network(4, 2, 5, 2)
-# NN.get_biases()
-# NN.get_model_paramiters()
-# NN.mutate(0.05)
-# NN.get_model_paramiters()
-# NN.forward(X)
-# print(NN.output_layer.output)
-
-# NN.save_to_file("model_paramiters3.npy")
-# NN.get_model_paramiters()
-NN.load_from_file("model_paramiters3.npy")
-# # NN.get_model_paramiters()
-NN.forward(X)
-print(NN.output_layer.output)
-# NN.save_to_file("model_paramiters3.pkl")
-# NN.save_to_file("model_paramiters3.npz")
-
-# print(np.random.rand(1))
-
-
-
-# layer1 = Layer_Dense(4, 5)
-# layer2 = Layer_Dense(5, 2)
-
-
-# layer1.forward(X)
-# layer2.forward(layer1.output)
-# print(layer2.output)
-
-
-
-#gauss
-
-# sample = np.random.normal(0,0.5,None)
-# print(sample)
-
-
-
-#Point Crossover
-#Uniform Crossover
-#Arythmetic Crossover
-
-#1 - 2 najlepszych zawsze kopiowanych w niezmienionej formie
-#mutacja 
+        self.set_model_paramiters(loaded_paramiters_list)
