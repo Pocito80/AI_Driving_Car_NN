@@ -2,7 +2,7 @@ import numpy as np
 
 class Layer_Dense:
     def __init__(self, n_inputs, n_neurons):
-        self.weights = 0.5 * np.random.randn(n_inputs, n_neurons)
+        self.weights = 0.2 * np.random.randn(n_inputs, n_neurons)
         self.biases = np.zeros((1, n_neurons))
     def forward(self, inputs):
         self.output = np.dot(inputs, self.weights) + self.biases
@@ -73,9 +73,9 @@ class Neural_Network:
         self.set_model_paramiters(self.model_paramiters)
         
 
-    def save_to_file(self, filename):
+    def save_to_file(self, filename, folder):
         self.get_model_paramiters()
-        np.save(filename, np.array(self.model_paramiters, dtype=object), allow_pickle=True)
+        np.save(f"{folder}/{filename}", np.array(self.model_paramiters, dtype=object), allow_pickle=True)
 
     def load_from_file(self, filename):
         loaded_paramiters = np.load(filename, allow_pickle=True)
@@ -85,9 +85,15 @@ class Neural_Network:
     def aritmetic_crossover(self, parent1, parent2):
         parent1.get_model_paramiters()
         parent2.get_model_paramiters()
+        # print("Parent 1 paramiters:")
+        # print(parent1.model_paramiters[0])
+        # print("Parent 2 paramiters:")
+        # print(parent2.model_paramiters[0])
         child_paramiters = []
         for p1, p2 in zip(parent1.model_paramiters, parent2.model_paramiters):
             alpha = np.random.rand(1)
             child_paramiter = alpha * p1 + (1 - alpha) * p2
             child_paramiters.append(child_paramiter)
+        # print("Child paramiters:")
+        # print(child_paramiters[0])
         self.set_model_paramiters(child_paramiters)

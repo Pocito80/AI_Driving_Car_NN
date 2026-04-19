@@ -10,11 +10,7 @@ class Message:
 class UDP_Server:
     def __init__(self, host="127.0.0.1", listen_port=4242, send_port=4243):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        # SIO_UDP_CONNRESET = 0x9800000C
-        # self.sock.ioctl(socket.SIO_UDP_CONNRESET, False)
-        # self.gd_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) 
         self.sock.bind((host, listen_port))
-        # self.gd_sock.bind((host, send_port))
         self.listen_addr = (host, listen_port)
         self.send_addr = (host, send_port)
         print(f"UDP server started on {host}:{listen_port}")
