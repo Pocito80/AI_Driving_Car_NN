@@ -81,3 +81,13 @@ class Neural_Network:
         loaded_paramiters = np.load(filename, allow_pickle=True)
         loaded_paramiters_list = loaded_paramiters.tolist()
         self.set_model_paramiters(loaded_paramiters_list)
+
+    def aritmetic_crossover(self, parent1, parent2):
+        parent1.get_model_paramiters()
+        parent2.get_model_paramiters()
+        child_paramiters = []
+        for p1, p2 in zip(parent1.model_paramiters, parent2.model_paramiters):
+            alpha = np.random.rand(1)
+            child_paramiter = alpha * p1 + (1 - alpha) * p2
+            child_paramiters.append(child_paramiter)
+        self.set_model_paramiters(child_paramiters)

@@ -1,82 +1,169 @@
+from email.mime import message
+import numpy as np
 import matplotlib.pyplot as plt
-import socket
 import json
 import neural_network as nn
+import UDP as udp
+import time
+
+
+def top_fitness_cars(cars_data, count=5):
+    valid = [
+        car for car in cars_data
+        if isinstance(car, dict) and "id" in car and "fitness" in car
+    ]
+    ranked = sorted(valid, key=lambda car: car["fitness"], reverse=True)
+    return [{"id": car["id"], "fitness": car["fitness"]} for car in ranked[:count]]
 
 def state_controller():
     global state
-    if state == "init":
-        nn_initialization()
-    elif state == "ensuring_connection":
-        ensure_connection()
-    elif state == "running":
-        running()
-    elif state == "crossing":
-        print("Crossing state - not implemented yet")
-    elif state == "sraken":
-        pass
+
+    match state:
+        case "menu":
+            menu()
+        case "nn_init":
+            nn_initialization()
+        case "udp_init":
+            udp_init()
+        case "ensuring_connection":
+            ensure_connection()
+        case "running":
+            running()
+        case "evolution":
+            evolution()
+
+def menu():
+    global state
+    print("Menu state - waiting for user input to start the simulation")
+    # user_input = input("Select an option: \n1. Start Simulation\n2. Exit\n")
+    # match user_input:
+    #     case "1":
+    #         print("Starting simulation...")
+    #         state = "init"
+    
+    state = "nn_init"
+
 
 def nn_initialization():
-    global neural_network, state, sock, data, addr, neural_networks
+    global state, neural_networks, generation
+    generation = 0
+    print("Generation:", generation)
     neural_networks = []
-    for i in range(20):
+    for i in range(50):
         neural_network = nn.Neural_Network(3, 2, 5, 2)
         neural_networks.append(neural_network)
-    state = "ensuring_connection"
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.bind(("127.0.0.1", 4242))
-    sock.sendto("connecting".encode(), ("127.0.0.1", 4242))
-
-    # data, addr = sock.recvfrom(65535)
+    state = "udp_init"
+   
+ 
+def udp_init():
+    global sock, state # Short delay to ensure the server is ready before sending the first message
+    sock = udp.UDP_Server()
     state = "ensuring_connection"
 
 def ensure_connection():
     global state, data, addr, sock
-    data, addr = sock.recvfrom(65535)
-    message = data.decode()
-    print(f"Received message from Godot: {message}")
-    if message == "connect_requested":
-        print("Received connection request from Godot, sending connection confirmation...")
-        sock.sendto("ready".encode(), addr)
-    elif message == "connected":
-        print("Received connection confirmation from Godot, connection established!")
-        sock.sendto("connected".encode(), addr)
+    # Short delay to ensure the server is ready before sending the first message
+    sock.send_json(udp.Message("Connection", "Connecting_to_GD").data)
+    message_recived = sock.receive_json()
+    if message_recived["type"] == "Connection" and message_recived["data"] == "Connecting_to_PY":
+        print("Handshake successful! We are synchronized.")
         state = "running"
 
+   
+   
+    # if message_recived["type"] == "Connection":
+    #     print("Received connection confirmation from Godot, connection established!")
+        # state = "running"
+    # message = data.decode()
+    # print(f"Received message from Godot: {message}")
+    # if message == "connect_requested":
+    #     print("Received connection request from Godot, sending connection confirmation...")
+    #     sock.sendto("ready".encode(), addr)
+    # elif message == "connected":
+    #     print("Received connection confirmation from Godot, connection established!")
+    #     sock.sendto("connected".encode(), addr)
+    #     state = "running"
+
 def running():
-    global data, addr, sock
-     # Random throttle and steer for testing
-    take_raycasts()
-    # commands = {}
-    # 3. Send commands back to Godot
-    # commands[car_id] = [random.uniform(-1, 1), random.uniform(-1, 1)]
-    # sock.sendto(json.dumps(commands).encode(), addr)
+    global state, message_recived
 
-def take_raycasts():
-    global data, addr, sock, neural_networks, commands, state
-    data, addr = sock.recvfrom(65535) 
 
-    fleet_state = json.loads(data.decode())
-    commands = {}
-
-    if fleet_state["state"] == "standard":
-        fleet_state = fleet_state["data"]
-
+    message_recived = sock.receive_json()
+    if message_recived["type"] == "FleetState":
+        fleet_state = message_recived["data"]
+        commands = {"data": {}}
         for car in fleet_state:
             car_id = car['id']
             inputs = car['sensors']
             fitness = car['fitness']
             neural_networks[int(car_id)].forward(inputs)
-            print(f"Output for car {car_id}: {neural_networks[int(car_id)].output_layer.output}")
-            commands[car_id] = neural_networks[int(car_id)].output_layer.output.tolist() # Convert numpy array to list for JSON serialization
-        sock.sendto(json.dumps(commands).encode(), addr)
-    elif fleet_state["state"] == "restart":
-        state = "init"
+            # print(f"Output for car {car_id}: {neural_networks[int(car_id)].output_layer.output}")
+            commands["data"][car_id] = neural_networks[int(car_id)].output_layer.output.tolist() # Convert numpy array to list for JSON serialization
+        sock.send_json(udp.Message("Commands", commands).data)
+    elif message_recived["type"] == "Generation_Ended":
+        # print("Received generation end signal from Godot, starting evolution process...")
+        state = "evolution"
+        for car in message_recived["data"]:
+            car_id = car['id']
+            fitness = car['fitness']
+            # print(f"Car {car_id} fitness: {fitness}")
+            neural_networks[int(car_id)].fitness = fitness
+
+
+def evolution():
+    global state, message_recived, generation
+    
+    if generation % 50 == 0:
+        for i in range(50):
+            neural_networks[i].save_to_file(f"model_paramiters_gen_{generation}_car_{i}.npy")
+
+
+    top_5 = top_fitness_cars(message_recived["data"], 5)
+    # print("Top 5 cars by fitness:")
+    # for rank, car in enumerate(top_5, start=1):
+    #     print(f"{rank}. car_id={car['id']}, fitness={car['fitness']}")
+   
+    for i in range(50):
+        if i not in [int(car["id"]) for car in top_5]:
+            parent1_id = np.random.randint(0, 5)
+            parent2_id = np.random.randint(0, 5)
+            if parent1_id == parent2_id:
+                parent2_id = (parent2_id + 1) % 5
+            parent1 = neural_networks[parent1_id]
+            parent2 = neural_networks[parent2_id]
+            neural_networks[i].aritmetic_crossover(parent1, parent2)
+            neural_networks[i].mutate(0.05)
+
+    state = "ensuring_connection"
+
+    generation += 1
+    print("Generation:", generation)
+    time.sleep(1)
+# def take_raycasts():
+#     global state
+  
+   
+    # fleet_state = json.loads(data.decode())
+    # commands = {}
+
+    # if fleet_state["state"] == "standard":
+    #     fleet_state = fleet_state["data"]
+
+    #     for car in fleet_state:
+    #         car_id = car['id']
+    #         inputs = car['sensors']
+    #         fitness = car['fitness']
+    #         neural_networks[int(car_id)].forward(inputs)
+    #         print(f"Output for car {car_id}: {neural_networks[int(car_id)].output_layer.output}")
+    #         commands[car_id] = neural_networks[int(car_id)].output_layer.output.tolist() # Convert numpy array to list for JSON serialization
+    #     sock.sendto(json.dumps(commands).encode(), addr)
+    # elif fleet_state["state"] == "restart":
+    #     state = "init"
 
 
 def main():
     global state
-    state = "init"
+    state = "menu"
     while True:
         state_controller()
     
