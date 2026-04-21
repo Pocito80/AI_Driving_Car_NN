@@ -46,13 +46,15 @@ def menu():
 
 
 def nn_initialization():
-    global state, neural_networks, generation
-    generation = 0
+    global state, neural_networks, generation, best_time
+    generation = 4551
+    best_time = float('inf')
     print("Generation:", generation)
     neural_networks = []
     for i in range(NUMBER_OF_AGENTS):
         neural_network = nn.Neural_Network(6, 2, 32, 2)
         neural_networks.append(neural_network)
+        neural_networks[i].load_from_file(f"model_paramiters_gen_4550_car_{i}.npy", "model5")
     state = "udp_init"
    
  
@@ -79,7 +81,7 @@ def running():
         commands = {"data": {}}
         for car in fleet_state:
             car_id = car['id']
-            inputs = car['sensors'] + [car['valocity']]
+            inputs = car['sensors'] + [car['velocity']]
             fitness = car['fitness']
             neural_networks[int(car_id)].forward(inputs)
             # print(inputs)
@@ -97,17 +99,21 @@ def running():
 
 
 def evolution():
-    global state, message_recived, generation, neural_networks
+    global state, message_recived, generation, neural_networks, best_time
     
     if generation % 50 == 0:
         for i in range(NUMBER_OF_AGENTS):
-            neural_networks[i].save_to_file(f"model_paramiters_gen_{generation}_car_{i}.npy", "model3")
+            neural_networks[i].save_to_file(f"model_paramiters_gen_{generation}_car_{i}.npy", "model5")
 
 
     top_5 = top_fitness_cars(message_recived["data"], 5)
     for rank, car in enumerate(top_5, start=1):
-        print(f"{rank}. car_id={car['id']}, fitness={car['fitness']}")
-   
+        print(f"{rank}. car_id={car['id']}, fitness={car['fitness']} and time={(car['fitness']-400)/-10}")
+        if (car['fitness']-400)/-10 < best_time:
+            best_time = (car['fitness']-400)/-10
+            neural_networks[int(car["id"])].save_to_file(f"best_model_paramiters2.npy", "model5")
+            # print(f"New best time: {best_time} seconds")
+
     for i in range(NUMBER_OF_AGENTS):
         if i not in [int(car["id"]) for car in top_5]:
             # print(f"Creating new neural network {i}")
@@ -127,7 +133,7 @@ def evolution():
     state = "ensuring_connection"
 
     generation += 1
-    print("Generation:", generation)
+    print("Generation:", generation, "best time:", best_time)
     time.sleep(1)
 
 

@@ -77,23 +77,17 @@ class Neural_Network:
         self.get_model_paramiters()
         np.save(f"{folder}/{filename}", np.array(self.model_paramiters, dtype=object), allow_pickle=True)
 
-    def load_from_file(self, filename):
-        loaded_paramiters = np.load(filename, allow_pickle=True)
+    def load_from_file(self, filename, folder):
+        loaded_paramiters = np.load(f"{folder}/{filename}", allow_pickle=True)
         loaded_paramiters_list = loaded_paramiters.tolist()
         self.set_model_paramiters(loaded_paramiters_list)
 
     def aritmetic_crossover(self, parent1, parent2):
         parent1.get_model_paramiters()
         parent2.get_model_paramiters()
-        # print("Parent 1 paramiters:")
-        # print(parent1.model_paramiters[0])
-        # print("Parent 2 paramiters:")
-        # print(parent2.model_paramiters[0])
         child_paramiters = []
         for p1, p2 in zip(parent1.model_paramiters, parent2.model_paramiters):
             alpha = np.random.rand(1)
             child_paramiter = alpha * p1 + (1 - alpha) * p2
             child_paramiters.append(child_paramiter)
-        # print("Child paramiters:")
-        # print(child_paramiters[0])
         self.set_model_paramiters(child_paramiters)

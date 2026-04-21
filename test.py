@@ -52,9 +52,9 @@ def nn_initialization():
     print("Generation:", generation)
     neural_networks = []
     for i in range(NUMBER_OF_AGENTS):
-        neural_network = nn.Neural_Network(5, 2, 32, 2)
+        neural_network = nn.Neural_Network(6, 2, 32, 2)
         neural_networks.append(neural_network)
-        neural_networks[i].load_from_file(f"model_paramiters_gen_50_car_16.npy")
+        neural_networks[i].load_from_file(f"best_model_paramiters.npy", "model5")
     
     # print(neural_networks[0].get_model_paramiters())
     state = "udp_init"
@@ -99,7 +99,7 @@ def running():
         commands = {"data": {}}
         for car in fleet_state:
             car_id = car['id']
-            inputs = car['sensors'] + [car['valocity']]
+            inputs = car['sensors'] + [car['velocity']]
             fitness = car['fitness']
             neural_networks[int(car_id)].forward(inputs)
             # print(f"Output for car {car_id}: {neural_networks[int(car_id)].output_layer.output}")
@@ -123,10 +123,10 @@ def evolution():
     #         neural_networks[i].save_to_file(f"model_paramiters_gen_{generation}_car_{i}.npy")
 
 
-    # top_5 = top_fitness_cars(message_recived["data"], 5)
+    top_5 = top_fitness_cars(message_recived["data"], 5)
     # # print("Top 5 cars by fitness:")
-    # for rank, car in enumerate(top_5, start=1):
-    #     print(f"{rank}. car_id={car['id']}, fitness={car['fitness']}")
+    for rank, car in enumerate(top_5, start=1):
+        print(f"{rank}. car_id={car['id']}, fitness={car['fitness']}", (car['fitness']-400)/-10)
    
     # for i in range(NUMBER_OF_AGENTS):
     #     if i not in [int(car["id"]) for car in top_5]:
