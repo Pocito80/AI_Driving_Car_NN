@@ -1,0 +1,60 @@
+[gd_scene format=3 uid="uid://d2c6fsyy73igl"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_g686u"]
+size = Vector3(50, 1, 10)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_x0d2t"]
+albedo_color = Color(0, 0, 0, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_3veuu"]
+size = Vector3(50, 1, 10)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_bpeel"]
+size = Vector3(50, 1.5, 0.5)
+
+[sub_resource type="BoxMesh" id="BoxMesh_twbfo"]
+size = Vector3(50, 1.5, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ocm6w"]
+albedo_color = Color(1, 1, 0, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_esrkl"]
+size = Vector3(50, 1.5, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pidm3"]
+albedo_color = Color(1, 1, 0, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_dlofk"]
+size = Vector3(50, 1.5, 0.5)
+
+[node name="road" type="StaticBody3D" unique_id=864571167]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=273922446]
+mesh = SubResource("BoxMesh_g686u")
+surface_material_override/0 = SubResource("StandardMaterial3D_x0d2t")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=858000696]
+visible = false
+shape = SubResource("BoxShape3D_3veuu")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="." unique_id=2010632504]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 5)
+visible = false
+shape = SubResource("BoxShape3D_bpeel")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="." unique_id=1786728985]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 5)
+visible = false
+mesh = SubResource("BoxMesh_twbfo")
+surface_material_override/0 = SubResource("StandardMaterial3D_ocm6w")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="." unique_id=442365378]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, -5)
+visible = false
+mesh = SubResource("BoxMesh_esrkl")
+surface_material_override/0 = SubResource("StandardMaterial3D_pidm3")
+
+[node name="CollisionShape3D3" type="CollisionShape3D" parent="." unique_id=203512601]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, -5)
+visible = false
+shape = SubResource("BoxShape3D_dlofk")

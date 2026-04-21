@@ -1,0 +1,56 @@
+[gd_scene format=3 uid="uid://bjokhvqqkc3a8"]
+
+[ext_resource type="Script" uid="uid://bpur1301640kb" path="res://checkpoint.gd" id="1_luqgl"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_njsvn"]
+size = Vector3(1, 2, 8)
+
+[sub_resource type="BoxMesh" id="BoxMesh_luqgl"]
+size = Vector3(0.5, 5, 8)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_r6hke"]
+transparency = 1
+blend_mode = 3
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_luqgl"]
+albedo_color = Color(0.9764706, 0.77254903, 0, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_r6hke"]
+material = SubResource("StandardMaterial3D_luqgl")
+size = Vector3(0.5, 5, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tnhlw"]
+albedo_color = Color(0.9764706, 0.77254903, 0, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_s20m7"]
+material = SubResource("StandardMaterial3D_tnhlw")
+size = Vector3(0.5, 1.5, 8.5)
+
+[node name="Checkpoint" type="Area3D" unique_id=934510879]
+collision_layer = 3
+collision_mask = 3
+script = ExtResource("1_luqgl")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=662989501]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.52246094, 0.083984375)
+shape = SubResource("BoxShape3D_njsvn")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CollisionShape3D" unique_id=627504655]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+visible = false
+mesh = SubResource("BoxMesh_luqgl")
+surface_material_override/0 = SubResource("StandardMaterial3D_r6hke")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1449021553]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 4)
+mesh = SubResource("BoxMesh_r6hke")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="." unique_id=1233982421]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, -4)
+mesh = SubResource("BoxMesh_r6hke")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="." unique_id=2127137451]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.25, 0)
+mesh = SubResource("BoxMesh_s20m7")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

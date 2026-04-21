@@ -1,2 +1,10 @@
 *.npy
 *.pyc
+
+.godot/
+*.import
+export_presets.cfg
+
+.mono/
+bin/
+obj/
