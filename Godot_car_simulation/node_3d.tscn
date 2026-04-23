@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://dh3gglpsgpriv" path="res://road2.tscn" id="4_r3fl7"]
 [ext_resource type="PackedScene" uid="uid://dn7yvnrbp41it" path="res://vehicle_body_3d.tscn" id="5_i5arm"]
 [ext_resource type="Script" uid="uid://dwn2fjcmyheh7" path="res://ai_manager.gd" id="5_jka67"]
+[ext_resource type="Script" path="res://cam.gd" id="6_cam"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_a202f"]
 energy_multiplier = 4.0
@@ -102,4 +103,5 @@ checkpoint_index = 11
 transform = Transform3D(0.8660253, 0, 0.5, 0, 1, 0, -0.5, 0, 0.8660253, 9, 2, -12)
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=33225809]
+script = ExtResource("6_cam")
 transform = Transform3D(-0.1736482, 0.9848077, 4.304731e-08, 0, -4.371139e-08, 1, 0.9848077, 0.1736482, 7.590404e-09, -22, 55, 30.504)

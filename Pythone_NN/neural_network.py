@@ -73,12 +73,12 @@ class Neural_Network:
         self.set_model_paramiters(self.model_paramiters)
         
 
-    def save_to_file(self, filename, folder):
+    def save_to_file(self, file_path):
         self.get_model_paramiters()
-        np.save(f"{folder}/{filename}", np.array(self.model_paramiters, dtype=object), allow_pickle=True)
+        np.save(file_path, np.array(self.model_paramiters, dtype=object), allow_pickle=True)
 
-    def load_from_file(self, filename, folder):
-        loaded_paramiters = np.load(f"{folder}/{filename}", allow_pickle=True)
+    def load_from_file(self, file_path):
+        loaded_paramiters = np.load(file_path, allow_pickle=True)
         loaded_paramiters_list = loaded_paramiters.tolist()
         self.set_model_paramiters(loaded_paramiters_list)
 

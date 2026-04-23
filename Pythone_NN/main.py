@@ -6,7 +6,9 @@ import UDP as udp
 import time
 
 NUMBER_OF_AGENTS = 50
-
+FILE_PATH_LOAD = "Pythone_NN/Saved_models/model5/model_paramiters_gen_4550_car_{}.npy"
+FILE_PATH_SAVE = "Pythone_NN/Saved_models/model5/model_paramiters_gen_{}_car_{}.npy"
+FILE_PATH_BEST_MODEL = "Pythone_NN/Saved_models/model5/best_model_paramiters.npy"
 
 def top_fitness_cars(cars_data, count=5):
     valid = [
@@ -54,7 +56,7 @@ def nn_initialization():
     for i in range(NUMBER_OF_AGENTS):
         neural_network = nn.Neural_Network(6, 2, 32, 2)
         neural_networks.append(neural_network)
-        neural_networks[i].load_from_file(f"model_paramiters_gen_4550_car_{i}.npy", "model5")
+        neural_networks[i].load_from_file(FILE_PATH_LOAD.format(i))
     state = "udp_init"
    
  
@@ -103,7 +105,7 @@ def evolution():
     
     if generation % 50 == 0:
         for i in range(NUMBER_OF_AGENTS):
-            neural_networks[i].save_to_file(f"model_paramiters_gen_{generation}_car_{i}.npy", "model5")
+            neural_networks[i].save_to_file(FILE_PATH_SAVE.format(generation, i))
 
 
     top_5 = top_fitness_cars(message_recived["data"], 5)
@@ -111,7 +113,7 @@ def evolution():
         print(f"{rank}. car_id={car['id']}, fitness={car['fitness']} and time={(car['fitness']-400)/-10}")
         if (car['fitness']-400)/-10 < best_time:
             best_time = (car['fitness']-400)/-10
-            neural_networks[int(car["id"])].save_to_file(f"best_model_paramiters2.npy", "model5")
+            neural_networks[int(car["id"])].save_to_file(FILE_PATH_BEST_MODEL)
             # print(f"New best time: {best_time} seconds")
 
     for i in range(NUMBER_OF_AGENTS):

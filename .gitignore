@@ -1,5 +1,6 @@
 *.npy
 *.pyc
+*.zip
 
 .godot/
 *.import
