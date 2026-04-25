@@ -91,3 +91,13 @@ class Neural_Network:
             child_paramiter = alpha * p1 + (1 - alpha) * p2
             child_paramiters.append(child_paramiter)
         self.set_model_paramiters(child_paramiters)
+
+class Model_Paramiters:
+    def __init__(self, number_of_agents, mutation_rate, raycast_number, hidden_layer_width, hidden_layer_depth, activation_function_choice, mutation_function_choice):
+        self.number_of_agents = number_of_agents
+        self.mutation_rate = mutation_rate
+        self.raycast_number = raycast_number
+        self.hidden_layer_width = hidden_layer_width
+        self.hidden_layer_depth = hidden_layer_depth
+        self.activation_function_choice = activation_function_choice
+        self.mutation_function_choice = mutation_function_choice

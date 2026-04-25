@@ -5,7 +5,6 @@ import UDP as udp
 import time
 import questionary as qt
 import plot as pl
-import os
 import menu as m
 
 
@@ -27,8 +26,7 @@ def state_controller():
 
     match state:
         case "menu":
-            game_paramiters_menu()
-            # main_menu()
+            m.game_paramiters_menu()
         case "nn_init":
             nn_initialization()
         case "udp_init":
@@ -41,83 +39,6 @@ def state_controller():
             evolution()
 
 
-def game_paramiters_menu():
-    menu = m.MAP_MENU
-    map_choice = menu.display()
-    if map_choice == "exit":
-        print("Exiting program...")
-        exit()
-    menu = m.SPEED_MENU
-    speed_choice = menu.display()
-    print(f"Selected map: {map_choice}, Selected speed: {speed_choice}")
-    main_menu()
-    
-
-def main_menu():
-    global state
-
-    menu = m.MAIN_MENU
-    menu_choice = menu.display()
-    match menu_choice:
-        case "training":
-            training_menu()
-        case "load_without_training":
-            load_without_training_menu()
-        case "exit":
-            print("Exiting program...")
-            exit()
-
-def training_menu():
-    menu = m.TRAINING_MENU
-    menu_choice = menu.display()
-    match menu_choice:
-        case "start_new_training":
-            set_new_model_paramiters()
-        case "continue_training":
-            folder_selection_menu()
-        case "back_to_main_menu":
-            print("Returning to main menu...")
-            main_menu()
-
-def folder_selection_menu():
-    menu = m.FOLDER_TREE_MENU
-    folder_choice = menu.display()
-    # print(f"Selected folder: {folder_choice}")
-    # return folder_choice
-
-def load_without_training_menu():
-    menu = m.FOLDER_TREE_MENU
-    folder_choice = menu.display()
-    load_model_from_folder(folder_choice)
-    
-def load_model_from_folder(folder_name):
-    highest_generation = m.find_highest_generation(folder_name)
-    menu = m.Menu("Select generation to load:", {
-        "Best model": "best_model_paramiters.npy",
-        **{f"GENERATION {i}": i for i in range(0, highest_generation + 1, 50)},
-        "BACK TO MAIN MENU": "back_to_main_menu"
-    })
-    generation_choice = menu.display()
-    print(f"Selected generation: {generation_choice}")
-    
-def set_new_model_paramiters():
-    menu = m.InputMenu("Number of agents:")
-    number_of_agents = int(menu.display(1,50))
-    menu = m.InputMenu("Mutation rate (0-1):")
-    mutation_rate = float(menu.display(0,1))
-    menu = m.InputMenu("Raycast Number(3-10):")
-    raycast_number = int(menu.display(3,10))
-    menu = m.InputMenu("Hidden layer width:")
-    hidden_layer_width = int(menu.display(1,100))
-    menu = m.InputMenu("Hidden layer depth:")
-    hidden_layer_depth = int(menu.display(1,10))
-    menu = m.ACTIVATION_FUNCTION_MENU
-    activation_function_choice = menu.display()
-    menu = m.MUTATION_FUNCTION_MENU
-    mutation_function_choice = menu.display()
-
-    print(f"Selected parameters: Number of agents: {number_of_agents}, Mutation rate: {mutation_rate}, Raycast number: {raycast_number}, Hidden layer width: {hidden_layer_width}, Hidden layer depth: {hidden_layer_depth}, Activation function: {activation_function_choice}, Mutation function: {mutation_function_choice}")
-    # return number_of_agents, mutation_rate
     
     # menu = m.Menu(
     #     title="Select an option:",
