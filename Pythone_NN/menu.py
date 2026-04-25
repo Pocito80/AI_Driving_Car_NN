@@ -1,6 +1,7 @@
 import questionary as qt
 import pathlib as path
 import re
+import neural_network as nn
 
 class Menu:
 
@@ -71,15 +72,10 @@ MUTATION_FUNCTION_MENU = Menu("Select a mutation function:", {
     "ARITHMETIC CROSSOVER": "arithmetic_crossover",
 })
 
-# PARAMETERS_MENU = Menu("Select a parameter to adjust:", {
-#     "NUMBER OF AGENTS": "number_of_agents",
-#     "MUTATION RATE": "mutation_rate",
-#     "BACK TO TRAINING MENU": "back_to_training_menu"
-# })
-
 directories = [f.name for f in path.Path("Pythone_NN/Saved_models").iterdir() if f.is_dir()]
 FOLDER_TREE_MENU = Menu("Select a folder to load:", {
-    directory: directory for directory in directories
+    **{directory: directory for directory in directories},
+    "BACK": "back_to_previous_menu"
 })
 
 def find_highest_generation(folder_name):
@@ -94,35 +90,92 @@ def find_highest_generation(folder_name):
 
     highest_generation = max(generation_numbers) 
     return highest_generation
- 
 
+def game_paramiters_menu():
+    menu = MAP_MENU
+    map_choice = menu.display()
+    if map_choice == "exit":
+        print("Exiting program...")
+        exit()
+    menu = SPEED_MENU
+    speed_choice = menu.display()
+    if speed_choice == "back_to_previous_menu":
+        game_paramiters_menu()
+    print(f"Selected map: {map_choice}, Selected speed: {speed_choice}")
+    main_menu()
+    
 
+def main_menu():
+    menu = MAIN_MENU
+    menu_choice = menu.display()
+    match menu_choice:
+        case "training":
+            training_menu()
+        case "load_without_training":
+            load_without_training_menu()
+        case "exit":
+            print("Exiting program...")
+            exit()
 
-# # choice = FILE_TREE_MENU.display()
+def training_menu():
+    menu = TRAINING_MENU
+    menu_choice = menu.display()
+    match menu_choice:
+        case "start_new_training":
+            set_new_model_paramiters()
+        case "continue_training":
+            folder_selection_menu()
+        case "back_to_previous_menu":
+            main_menu()
 
-# selected_folder = path.Path(f"Pythone_NN/Saved_models/{choice}")
-# files = [f for f in selected_folder.iterdir() if f.is_file()]
+def folder_selection_menu():
+    menu = FOLDER_TREE_MENU
+    folder_choice = menu.display()
+    if folder_choice == "back_to_previous_menu":
+        training_menu()
 
-# generation_numbers = []
-# for file in files:
-#     matches = re.findall(r"_gen_(\d+)", file.stem)
-#     if matches:
-#         generation_numbers.append(int(matches[-1]))
+def load_without_training_menu():
+    menu = FOLDER_TREE_MENU
+    folder_choice = menu.display()
+    if folder_choice == "back_to_previous_menu":
+        main_menu()
+    load_model_from_folder(folder_choice)
+    
+def load_model_from_folder(folder_name):
+    highest_generation = find_highest_generation(folder_name)
+    menu = Menu("Select generation to load:", {
+        "Best model": "best_model_paramiters.npy",
+        **{f"GENERATION {i}": i for i in range(0, highest_generation + 1, 50)},
+        "BACK": "back_to_previous_menu"
+    })
+    generation_choice = menu.display()
+    if generation_choice == "back_to_previous_menu":
+        load_without_training_menu()
+    print(f"Selected generation: {generation_choice}")
+    
+def set_new_model_paramiters():
+    menu = InputMenu("Number of agents:")
+    number_of_agents = int(menu.display(1,50))
+    menu = InputMenu("Mutation rate (0-1):")
+    mutation_rate = float(menu.display(0,1))
+    menu = InputMenu("Raycast Number(3-10):")
+    raycast_number = int(menu.display(3,10))
+    menu = InputMenu("Hidden layer width:")
+    hidden_layer_width = int(menu.display(1,100))
+    menu = InputMenu("Hidden layer depth:")
+    hidden_layer_depth = int(menu.display(1,10))
+    menu = ACTIVATION_FUNCTION_MENU
+    activation_function_choice = menu.display()
+    menu = MUTATION_FUNCTION_MENU
+    mutation_function_choice = menu.display()
 
-# highest_generation = max(generation_numbers) if generation_numbers else None
-
-# # if highest_generation is not None:
-# #     print(f"Najwyższy numer generacji: {highest_generation}")
-# # else:
-# #     print("Nie znaleziono numerów generacji w wybranym folderze.")
-
-# GEN_MENU = Menu("Select a generation to load:", {
-#     f"GENERATION {i}": i for i in range(0, highest_generation + 1, 50)
-# })
-
-# generation_choice = GEN_MENU.display()
-
-# FILE_SELECTION_MENU = Menu("Select a file to load:", {
-#     file.name: file.name for file in files
-# })
-
+    model_paramiters = nn.Model_Paramiters(
+        number_of_agents,
+        mutation_rate,
+        raycast_number,
+        hidden_layer_width,
+        hidden_layer_depth,
+        activation_function_choice,
+        mutation_function_choice,
+    )
+    
