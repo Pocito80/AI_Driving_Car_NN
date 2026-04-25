@@ -3,8 +3,8 @@ extends Node3D
 const UDPModule = preload("res://udp.gd")
 
 @export var car_scene: PackedScene
-@onready var spawn_point = $SpawnPoint
-
+# @onready var spawn_point = $SpawnPoint
+@onready var spawn_point = $SpawnPoint2
 
 
 var connection_established = false
