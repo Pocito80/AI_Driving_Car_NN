@@ -55,9 +55,9 @@ MAP_MENU = Menu("Select a map:", {
 })
 
 SPEED_MENU = Menu("Select a speed:", {
-    "SLOW": "slow",
-    "MEDIUM": "medium",
-    "FAST": "fast",
+    "x1 speed": "x1",
+    "x2 speed": "x2",
+    "x3 speed": "x3",
     "BACK": "back_to_previous_menu"
 })
 
@@ -76,6 +76,13 @@ directories = [f.name for f in path.Path("Pythone_NN/Saved_models").iterdir() if
 FOLDER_TREE_MENU = Menu("Select a folder to load:", {
     **{directory: directory for directory in directories},
     "BACK": "back_to_previous_menu"
+})
+
+RAYCAST_NUMBER_MENU = Menu("Select the number of raycasts:", {
+    "3": 3,
+    "5": 5,
+    "7": 7,
+    "8": 8,
 })
 
 def find_highest_generation(folder_name):
@@ -139,7 +146,8 @@ def load_without_training_menu():
     folder_choice = menu.display()
     if folder_choice == "back_to_previous_menu":
         main_menu()
-    load_model_from_folder(folder_choice)
+    else:
+        load_model_from_folder(folder_choice)
     
 def load_model_from_folder(folder_name):
     highest_generation = find_highest_generation(folder_name)
@@ -158,8 +166,8 @@ def set_new_model_paramiters():
     number_of_agents = int(menu.display(1,50))
     menu = InputMenu("Mutation rate (0-1):")
     mutation_rate = float(menu.display(0,1))
-    menu = InputMenu("Raycast Number(3-10):")
-    raycast_number = int(menu.display(3,10))
+    menu = RAYCAST_NUMBER_MENU
+    raycast_number = menu.display()
     menu = InputMenu("Hidden layer width:")
     hidden_layer_width = int(menu.display(1,100))
     menu = InputMenu("Hidden layer depth:")
@@ -178,4 +186,5 @@ def set_new_model_paramiters():
         activation_function_choice,
         mutation_function_choice,
     )
+
     

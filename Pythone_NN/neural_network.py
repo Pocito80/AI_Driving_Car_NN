@@ -101,3 +101,14 @@ class Model_Paramiters:
         self.hidden_layer_depth = hidden_layer_depth
         self.activation_function_choice = activation_function_choice
         self.mutation_function_choice = mutation_function_choice
+
+    def to_dict(self):
+        return {
+            "number_of_agents": self.number_of_agents,
+            "mutation_rate": self.mutation_rate,
+            "raycast_number": self.raycast_number,
+            "hidden_layer_width": self.hidden_layer_width,
+            "hidden_layer_depth": self.hidden_layer_depth,
+            "activation_function_choice": self.activation_function_choice,
+            "mutation_function_choice": self.mutation_function_choice
+        }
