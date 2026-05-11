@@ -3,15 +3,15 @@ extends Node3D
 const UDPModule = preload("res://udp.gd")
 
 @export var car_scene: PackedScene
-# @onready var spawn_point = $SpawnPoint
-@onready var spawn_point = $SpawnPoint2
+@onready var spawn_point = $SpawnPoint
+# @onready var spawn_point
 
 
 var connection_established = false
 
 var state = "ensuring_connection"
 var udp: UDPModule.UDP_Server
-
+var game_values
 
 func _ready():
 	udp = UDPModule.UDP_Server.new()
@@ -25,11 +25,23 @@ func _physics_process(_delta):
 		# print("Received message from Python:", message_recived)
 		if message_recived and message_recived["type"] == "Connection" and message_recived["data"] == "Connecting_to_GD":
 			print("Handshake successful! We are synchronized.")
-			state = "spawn"
+			state = "reciving_paramiters"
 		
+	elif state == "reciving_paramiters":
+		var message_recived = udp.receive_json()
+		if message_recived and message_recived["type"] == "Paramiters":
+			print("Received model parameters from Python.")
+			udp.send_json(UDPModule.Message.new("Paramiters", "Paramiters_received").data)
+			game_values = message_recived["data"]
+			Engine.time_scale = int(game_values["game_speed"])
+			if game_values["map"] == "map_2":
+				spawn_point = $SpawnPoint2
+			state = "spawn"
+			print("Game values received:", game_values)
+			# print(game_values["model_parameters"]["number_of_agents"])
 
 	elif state == "spawn":
-		spawn_cars()
+		spawn_cars(int(game_values["model_paramiters"]["number_of_agents"]))
 		state = "running"	
 	
 	elif state == "running":
@@ -48,7 +60,7 @@ func _physics_process(_delta):
 		var cars_alive = 0
 		var cars = get_tree().get_nodes_in_group("player")
 		
-	
+		# print(cars)
 		for car in cars:
 			frame_state.append(car.get_state())
 			if car.alive:
@@ -63,6 +75,7 @@ func _physics_process(_delta):
 
 		
 			get_tree().call_deferred("reload_current_scene")
+			# state = "ensure_connection"
 	
 		udp.send_json(UDPModule.Message.new("FleetState", frame_state).data)
 			
@@ -82,9 +95,10 @@ func distribute_commands(commands: Dictionary):
 
 
 
-func spawn_cars():
-	for i in range(50):
+func spawn_cars(number_of_agents):
+	for i in range(number_of_agents):
 		var car = car_scene.instantiate()
+		car.setup(int(game_values["model_paramiters"]["raycast_number"]))
 		car.name = str(i)
 		add_child(car)
 		car.add_to_group("player")

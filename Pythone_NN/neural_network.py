@@ -99,8 +99,8 @@ class Model_Paramiters:
         self.raycast_number = raycast_number
         self.hidden_layer_width = hidden_layer_width
         self.hidden_layer_depth = hidden_layer_depth
-        self.activation_function_choice = activation_function_choice
-        self.mutation_function_choice = mutation_function_choice
+        self.activation_function = activation_function_choice
+        self.mutation_function = mutation_function_choice
 
     def to_dict(self):
         return {
@@ -109,6 +109,6 @@ class Model_Paramiters:
             "raycast_number": self.raycast_number,
             "hidden_layer_width": self.hidden_layer_width,
             "hidden_layer_depth": self.hidden_layer_depth,
-            "activation_function_choice": self.activation_function_choice,
-            "mutation_function_choice": self.mutation_function_choice
+            "activation_function": self.activation_function,
+            "mutation_function": self.mutation_function
         }

@@ -16,10 +16,19 @@ var total_track_checkpoints: int = 12
 
 
 # @onready var rays = [$RaycastLeft, $RaycastFront, $RaycastRight]
-@onready var rays = [$RaycastLeft, $RaycastFront, $RaycastRight, $RaycastLeft2, $RaycastRight2]
+var rays = []
 
 var current_throttle: float = 0.0
 var current_steer: float = 0.0
+
+func setup(rays_number):
+
+	if rays_number == 3:
+		rays = [$RaycastLeft, $RaycastFront, $RaycastRight]
+	elif rays_number == 5:
+		rays = [$RaycastLeft, $RaycastLeft2, $RaycastFront, $RaycastRight2, $RaycastRight]
+
+
 
 func _physics_process(delta):
 
@@ -57,7 +66,7 @@ func _physics_process(delta):
 		end_live()
 
 func hit_checkpoint(index: int):
-	print("Car", self.name, "hit checkpoint", index, "target was", target_checkpoint)
+	# print("Car", self.name, "hit checkpoint", index, "target was", target_checkpoint)
 	if index == target_checkpoint:
 		checkpoints_collected += 1
 		target_checkpoint += 1
@@ -68,7 +77,7 @@ func get_state() -> Dictionary:
 	var distances = []
 	for ray in rays:
 		distances.append(ray.get_collision_point().distance_to(ray.global_position) if ray.is_colliding() else 20.0)
-	
+		# print("Car", self.name, "ray", ray.name, "distance:", distances[-1])
 	return {
 		"id": self.name,
 		"sensors": distances,
@@ -97,5 +106,3 @@ func end_live():
 	current_steer = 0
 	fitness += checkpoints_collected * 100
 	# print("Car", self.name, "ended live with fitness:", fitness, "and time:", time,"collected:", checkpoints_collected)
-
-

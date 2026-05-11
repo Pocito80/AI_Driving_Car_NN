@@ -1,6 +1,7 @@
 *.npy
 *.pyc
 *.zip
+*.json
 
 .godot/
 *.import

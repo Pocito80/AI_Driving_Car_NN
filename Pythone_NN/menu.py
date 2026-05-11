@@ -81,8 +81,8 @@ FOLDER_TREE_MENU = Menu("Select a folder to load:", {
 RAYCAST_NUMBER_MENU = Menu("Select the number of raycasts:", {
     "3": 3,
     "5": 5,
-    "7": 7,
-    "8": 8,
+    # "7": 7,
+    # "8": 8,
 })
 
 def find_highest_generation(folder_name):
@@ -98,7 +98,7 @@ def find_highest_generation(folder_name):
     highest_generation = max(generation_numbers) 
     return highest_generation
 
-def game_paramiters_menu():
+def game_paramiters_menu(symulation_values):
     menu = MAP_MENU
     map_choice = menu.display()
     if map_choice == "exit":
@@ -107,49 +107,55 @@ def game_paramiters_menu():
     menu = SPEED_MENU
     speed_choice = menu.display()
     if speed_choice == "back_to_previous_menu":
-        game_paramiters_menu()
-    print(f"Selected map: {map_choice}, Selected speed: {speed_choice}")
-    main_menu()
-    
+        game_paramiters_menu(symulation_values)
+    symulation_values.map = map_choice
+    symulation_values.game_speed = speed_choice
+    main_menu(symulation_values)
 
-def main_menu():
+def main_menu(symulation_values):
     menu = MAIN_MENU
     menu_choice = menu.display()
     match menu_choice:
         case "training":
-            training_menu()
+            training_menu(symulation_values)
         case "load_without_training":
-            load_without_training_menu()
+            load_without_training_menu(symulation_values)
         case "exit":
             print("Exiting program...")
             exit()
 
-def training_menu():
+def training_menu(symulation_values):
     menu = TRAINING_MENU
     menu_choice = menu.display()
     match menu_choice:
         case "start_new_training":
-            set_new_model_paramiters()
+            set_new_model_paramiters(symulation_values)
         case "continue_training":
-            folder_selection_menu()
+            folder_selection_menu(symulation_values)
         case "back_to_previous_menu":
-            main_menu()
+            main_menu(symulation_values)
 
-def folder_selection_menu():
+def folder_selection_menu(symulation_values):
     menu = FOLDER_TREE_MENU
     folder_choice = menu.display()
     if folder_choice == "back_to_previous_menu":
-        training_menu()
-
-def load_without_training_menu():
-    menu = FOLDER_TREE_MENU
-    folder_choice = menu.display()
-    if folder_choice == "back_to_previous_menu":
-        main_menu()
+        training_menu(symulation_values)
     else:
-        load_model_from_folder(folder_choice)
+        symulation_values.path = f"{folder_choice}/model_paramiters_gen_{find_highest_generation(folder_choice)}"
+        symulation_values.train = True
+        symulation_values.state = "selection_done"
+        symulation_values.to_load = True
+        symulation_values.generation = find_highest_generation(folder_choice)
+
+def load_without_training_menu(symulation_values):
+    menu = FOLDER_TREE_MENU
+    folder_choice = menu.display()
+    if folder_choice == "back_to_previous_menu":
+        main_menu(symulation_values)
+    else:
+        load_model_from_folder(folder_choice, symulation_values)
     
-def load_model_from_folder(folder_name):
+def load_model_from_folder(folder_name, symulation_values):
     highest_generation = find_highest_generation(folder_name)
     menu = Menu("Select generation to load:", {
         "Best model": "best_model_paramiters.npy",
@@ -158,10 +164,14 @@ def load_model_from_folder(folder_name):
     })
     generation_choice = menu.display()
     if generation_choice == "back_to_previous_menu":
-        load_without_training_menu()
-    print(f"Selected generation: {generation_choice}")
+        load_without_training_menu(symulation_values)
+    else:
+        symulation_values.path = f"{folder_name}/{generation_choice}"
+        symulation_values.train = False
+        symulation_values.state = "selection_done"
+        symulation_values.to_load = True
     
-def set_new_model_paramiters():
+def set_new_model_paramiters(symulation_values):
     menu = InputMenu("Number of agents:")
     number_of_agents = int(menu.display(1,50))
     menu = InputMenu("Mutation rate (0-1):")
@@ -177,7 +187,7 @@ def set_new_model_paramiters():
     menu = MUTATION_FUNCTION_MENU
     mutation_function_choice = menu.display()
 
-    model_paramiters = nn.Model_Paramiters(
+    symulation_values.model_paramiters = nn.Model_Paramiters(
         number_of_agents,
         mutation_rate,
         raycast_number,
@@ -186,5 +196,6 @@ def set_new_model_paramiters():
         activation_function_choice,
         mutation_function_choice,
     )
-
+    symulation_values.train = True
+    symulation_values.state = "selection_done"
     
