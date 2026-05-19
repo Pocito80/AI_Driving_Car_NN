@@ -42,10 +42,10 @@ class Symulation_Values:
 def top_fitness_cars(cars_data, count=5):
     valid = [
         car for car in cars_data
-        if isinstance(car, dict) and "id" in car and "fitness" in car
+        if isinstance(car, dict) and "id" in car and "fitness" in car and "traveled" in car
     ]
     ranked = sorted(valid, key=lambda car: car["fitness"], reverse=True)
-    return [{"id": car["id"], "fitness": car["fitness"]} for car in ranked[:count]]
+    return [{"id": car["id"], "fitness": car["fitness"], "traveled": car["traveled"]} for car in ranked[:count]]
 
 
 def state_controller():
@@ -160,6 +160,7 @@ def running():
             car_id = car['id']
             inputs = car['sensors'] + [car['velocity']]
             fitness = car['fitness']
+            # traveled = car['traveled']
             neural_networks[int(car_id)].forward(inputs)
            
             commands["data"][car_id] = neural_networks[int(car_id)].output_layer.output.tolist() # Convert numpy array to list for JSON serialization
@@ -170,6 +171,7 @@ def running():
         for car in message_recived["data"]:
             car_id = car['id']
             fitness = car['fitness']
+            traveled = car['traveled']
             # print(f"Car {car_id} fitness: {fitness}")
             neural_networks[int(car_id)].fitness = fitness
 
@@ -184,10 +186,10 @@ def evolution():
 
             neural_networks[i].save_to_file(save_path + f"/model_paramiters_gen_{generation}_car_{i}.npy")
 
-
+    # print(message_recived["data"])
     top_5 = top_fitness_cars(message_recived["data"], 5)
     for rank, car in enumerate(top_5, start=1):
-        print(f"{rank}. car_id={car['id']}, fitness={car['fitness']}")
+        print(f"{rank}. car_id={car['id']}, fitness={car['fitness']}, traveled={car['traveled']}")
         # if (car['fitness']-400)/-10 < best_time:
         #     best_time = (car['fitness']-400)/-10
         #     neural_networks[int(car["id"])].save_to_file(FILE_PATH_BEST_MODEL)

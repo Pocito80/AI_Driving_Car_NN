@@ -101,6 +101,7 @@ func spawn_cars(number_of_agents):
 	for i in range(number_of_agents):
 		var car = car_scene.instantiate()
 		car.track_path = track_path_node
+		car.spawn_point = spawn_point
 		car.setup(int(game_values["model_paramiters"]["raycast_number"]))
 		car.name = str(i)
 		add_child(car)

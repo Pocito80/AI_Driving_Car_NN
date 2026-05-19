@@ -1,6 +1,7 @@
 extends VehicleBody3D
 
 var track_path: Path3D
+var spawn_point: Node3D
 
 var max_RPM = 2000
 var max_torque = 1600
@@ -14,6 +15,7 @@ var fitness = 0
 
 var checkpoints_collected: int = 0
 var target_checkpoint: int = 0
+var laps_completed: int = 0
 var total_track_checkpoints: int = 12
 
 var distance_along_track = 0.0
@@ -27,8 +29,7 @@ var current_steer: float = 0.0
 
 func _ready():
 	total_track_length = track_path.curve.get_baked_length()
-	var local_spawn_position = track_path.to_local(global_position)
-	spawn_track_offset = track_path.curve.get_closest_offset(local_spawn_position)
+	
 
 func setup(rays_number):
 
@@ -36,7 +37,8 @@ func setup(rays_number):
 		rays = [$RaycastLeft, $RaycastFront, $RaycastRight]
 	elif rays_number == 5:
 		rays = [$RaycastLeft, $RaycastLeft2, $RaycastFront, $RaycastRight2, $RaycastRight]
-
+	var local_spawn_position = track_path.to_local(spawn_point.global_position)
+	spawn_track_offset = track_path.curve.get_closest_offset(local_spawn_position)
 
 
 func _physics_process(delta):
@@ -80,6 +82,7 @@ func hit_checkpoint(index: int):
 		checkpoints_collected += 1
 		target_checkpoint += 1
 	if target_checkpoint >= total_track_checkpoints:
+		laps_completed += 1
 		target_checkpoint = 0
 
 func get_state() -> Dictionary:
@@ -91,6 +94,7 @@ func get_state() -> Dictionary:
 		"id": self.name,
 		"sensors": distances,
 		"fitness": fitness,
+		"traveled": distance_along_track,
 		"velocity": round(linear_velocity.length()),
 	}
 	
@@ -98,6 +102,9 @@ func apply_ai_command(throttle: float, steer: float):
 	if alive:
 		current_throttle = throttle
 		current_steer = steer
+		track_distance()
+		# if self.name == "44":
+			# print("Car", self.name, "Distance along track:", distance_along_track)
 		#print(current_steer, current_throttle)
 		#print(target_checkpoint)
 
@@ -113,16 +120,21 @@ func _on_body_entered(body):
 func track_distance():
 	var car_local_pos = track_path.to_local(global_position)
 	var current_offset = track_path.curve.get_closest_offset(car_local_pos)
+	
 	var offset_difference = current_offset - spawn_track_offset
-	distance_along_track = offset_difference 
+	if offset_difference < 0:
+		offset_difference += total_track_length
+
+	distance_along_track = offset_difference + laps_completed * total_track_length
 
 func end_live():
 	alive = false
 	current_throttle = 0
 	current_steer = 0
 	track_distance()
-	var distance_traveled = distance_along_track
-	print("Car", self.name, "traveled distance:", distance_traveled, "meters", "total track length:", total_track_length, "meters")
+	# var distance_traveled = distance_along_track
+	# print("Car", self.name, "traveled distance:", distance_along_track, "meters", "total track length:", total_track_length, "meters")
 	
-	fitness += checkpoints_collected * 100 + distance_traveled
+
+	fitness += checkpoints_collected * 100 + distance_along_track
 	# print("Car", self.name, "ended live with fitness:", fitness, "and time:", time,"collected:", checkpoints_collected)
