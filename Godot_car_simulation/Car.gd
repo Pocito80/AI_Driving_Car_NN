@@ -1,5 +1,7 @@
 extends VehicleBody3D
 
+var track_path: Path3D
+
 var max_RPM = 2000
 var max_torque = 1600
 var max_brake_force = 15.0
@@ -14,12 +16,19 @@ var checkpoints_collected: int = 0
 var target_checkpoint: int = 0
 var total_track_checkpoints: int = 12
 
+var distance_along_track = 0.0
+var total_track_length = 0.0
+var spawn_track_offset = 0.0
 
-# @onready var rays = [$RaycastLeft, $RaycastFront, $RaycastRight]
 var rays = []
 
 var current_throttle: float = 0.0
 var current_steer: float = 0.0
+
+func _ready():
+	total_track_length = track_path.curve.get_baked_length()
+	var local_spawn_position = track_path.to_local(global_position)
+	spawn_track_offset = track_path.curve.get_closest_offset(local_spawn_position)
 
 func setup(rays_number):
 
@@ -58,7 +67,7 @@ func _physics_process(delta):
 		
 	if alive:
 		time += delta
-		fitness += (linear_velocity.length() * 3.6)/1000
+	# 	fitness += (linear_velocity.length() * 3.6)/1000
 
 	if  time > 40 and alive:
 		# fitness = -10 * time + 400
@@ -100,9 +109,20 @@ func _on_body_entered(body):
 		#print(fitness)
 		#get_tree().call_deferred("reload_current_scene")
 
+
+func track_distance():
+	var car_local_pos = track_path.to_local(global_position)
+	var current_offset = track_path.curve.get_closest_offset(car_local_pos)
+	var offset_difference = current_offset - spawn_track_offset
+	distance_along_track = offset_difference 
+
 func end_live():
 	alive = false
 	current_throttle = 0
 	current_steer = 0
-	fitness += checkpoints_collected * 100
+	track_distance()
+	var distance_traveled = distance_along_track
+	print("Car", self.name, "traveled distance:", distance_traveled, "meters", "total track length:", total_track_length, "meters")
+	
+	fitness += checkpoints_collected * 100 + distance_traveled
 	# print("Car", self.name, "ended live with fitness:", fitness, "and time:", time,"collected:", checkpoints_collected)

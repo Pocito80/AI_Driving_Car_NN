@@ -3,6 +3,7 @@ extends Node3D
 const UDPModule = preload("res://udp.gd")
 
 @export var car_scene: PackedScene
+@onready var track_path_node: Path3D = $TrackPath
 @onready var spawn_point = $SpawnPoint
 # @onready var spawn_point
 
@@ -36,6 +37,7 @@ func _physics_process(_delta):
 			Engine.time_scale = int(game_values["game_speed"])
 			if game_values["map"] == "map_2":
 				spawn_point = $SpawnPoint2
+				track_path_node = $TrackPath2
 			state = "spawn"
 			print("Game values received:", game_values)
 			# print(game_values["model_parameters"]["number_of_agents"])
@@ -98,6 +100,7 @@ func distribute_commands(commands: Dictionary):
 func spawn_cars(number_of_agents):
 	for i in range(number_of_agents):
 		var car = car_scene.instantiate()
+		car.track_path = track_path_node
 		car.setup(int(game_values["model_paramiters"]["raycast_number"]))
 		car.name = str(i)
 		add_child(car)

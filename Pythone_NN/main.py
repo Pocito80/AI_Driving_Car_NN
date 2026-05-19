@@ -10,10 +10,10 @@ import json
 import os
 import re
 
-NUMBER_OF_AGENTS = 50
-FILE_PATH_LOAD = "Pythone_NN/Saved_models/model5/model_paramiters_gen_4550_car_{}.npy"
-FILE_PATH_SAVE = "Pythone_NN/Saved_models/model5/model_paramiters_gen_{}_car_{}.npy"
-FILE_PATH_BEST_MODEL = "Pythone_NN/Saved_models/model5/best_model_paramiters.npy"
+# NUMBER_OF_AGENTS = 50
+# FILE_PATH_LOAD = "Pythone_NN/Saved_models/model5/model_paramiters_gen_4550_car_{}.npy"
+# FILE_PATH_SAVE = "Pythone_NN/Saved_models/model5/model_paramiters_gen_{}_car_{}.npy"
+# FILE_PATH_BEST_MODEL = "Pythone_NN/Saved_models/model5/best_model_paramiters.npy"
 
 class Symulation_Values:
     def __init__(self, state, train, path, to_load, map, game_speed, generation, model_paramiters):

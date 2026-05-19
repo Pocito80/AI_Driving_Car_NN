@@ -32,7 +32,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.71922684, 13.981102, 0)
 visible = false
 shadow_enabled = true
 
-[node name="Path3D" parent="." unique_id=447887039 instance=ExtResource("4_r3fl7")]
+[node name="TrackPath" parent="." unique_id=447887039 instance=ExtResource("4_r3fl7")]
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1919873913]
 visible = false
@@ -111,7 +111,7 @@ script = ExtResource("6_cam")
 [node name="SpawnPoint2" type="Marker3D" parent="." unique_id=293258210]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.319345, 2, 102.846085)
 
-[node name="Path3D2" parent="." unique_id=1662215606 instance=ExtResource("6_i5arm")]
+[node name="TrackPath2" parent="." unique_id=1662215606 instance=ExtResource("6_i5arm")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 100.61735)
 
 [node name="Checkpoints2" type="Node3D" parent="." unique_id=1797911480]
