@@ -32,11 +32,8 @@ func _ready():
 	
 
 func setup(rays_number):
-
-	if rays_number == 3:
-		rays = [$RaycastLeft, $RaycastFront, $RaycastRight]
-	elif rays_number == 5:
-		rays = [$RaycastLeft, $RaycastLeft2, $RaycastFront, $RaycastRight2, $RaycastRight]
+	rays = [$RaycastLeftFront, $RaycastFront, $RaycastRightFront, $RaycastRight, $RaycastLeft, $RaycastLeftBack, $RaycastRightBack, $RaycastBack]
+	rays = rays.slice(0, rays_number)
 	var local_spawn_position = track_path.to_local(spawn_point.global_position)
 	spawn_track_offset = track_path.curve.get_closest_offset(local_spawn_position)
 

@@ -57,7 +57,6 @@ MAP_MENU = Menu("Select a map:", {
 SPEED_MENU = Menu("Select a speed:", {
     "x1 speed": "x1",
     "x2 speed": "x2",
-    "x3 speed": "x3",
     "BACK": "back_to_previous_menu"
 })
 
@@ -67,7 +66,6 @@ ACTIVATION_FUNCTION_MENU = Menu("Select an activation function:", {
 })
 
 MUTATION_FUNCTION_MENU = Menu("Select a mutation function:", {  
-    "POINT CROSSOVER": "point_crossover",
     "UNIFORM CROSSOVER": "uniform_crossover",
     "ARITHMETIC CROSSOVER": "arithmetic_crossover",
 })
@@ -81,8 +79,8 @@ FOLDER_TREE_MENU = Menu("Select a folder to load:", {
 RAYCAST_NUMBER_MENU = Menu("Select the number of raycasts:", {
     "3": 3,
     "5": 5,
-    # "7": 7,
-    # "8": 8,
+    "7": 7,
+    "8": 8,
 })
 
 def find_highest_generation(folder_name):
@@ -166,10 +164,12 @@ def load_model_from_folder(folder_name, symulation_values):
     if generation_choice == "back_to_previous_menu":
         load_without_training_menu(symulation_values)
     else:
-        symulation_values.path = f"{folder_name}/{generation_choice}"
+        symulation_values.path = f"{folder_name}/model_paramiters_gen_{generation_choice}"
         symulation_values.train = False
         symulation_values.state = "selection_done"
         symulation_values.to_load = True
+    if generation_choice == "best_model_paramiters.npy":
+        symulation_values.path = f"{folder_name}/best_model_paramiters.npy"
     
 def set_new_model_paramiters(symulation_values):
     menu = InputMenu("Number of agents:")

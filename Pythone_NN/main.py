@@ -10,10 +10,6 @@ import json
 import os
 import re
 
-# NUMBER_OF_AGENTS = 50
-# FILE_PATH_LOAD = "Pythone_NN/Saved_models/model5/model_paramiters_gen_4550_car_{}.npy"
-# FILE_PATH_SAVE = "Pythone_NN/Saved_models/model5/model_paramiters_gen_{}_car_{}.npy"
-# FILE_PATH_BEST_MODEL = "Pythone_NN/Saved_models/model5/best_model_paramiters.npy"
 
 class Symulation_Values:
     def __init__(self, state, train, path, to_load, map, game_speed, generation, model_paramiters):
@@ -76,6 +72,7 @@ def load_paramiters_from_file():
     global state, symulation_values, save_path
 
     if symulation_values.to_load:
+      
         folder_name = symulation_values.path.split("/")[0]
         print(f"Loading model parameters from folder: {folder_name}")
         with open(f"Pythone_NN/Saved_models/{folder_name}/paramiters.json", "r") as f:
@@ -87,7 +84,8 @@ def load_paramiters_from_file():
                 paramiters_data["hidden_layer_width"],
                 paramiters_data["hidden_layer_depth"],
                 paramiters_data["activation_function"],
-                paramiters_data["mutation_function"]
+                paramiters_data["mutation_function"],
+                paramiters_data["best_fittness"]
             )
             symulation_values.model_paramiters = model_paramiters
             save_path = f"Pythone_NN/Saved_models/{folder_name}"
@@ -113,17 +111,26 @@ def get_max_folder_number(directory_path):
 
 
 def nn_initialization():
-    global state, neural_networks, generation, best_time, plot
+    # napisać to po bożemu
+    global state, neural_networks, generation, best_time, plot, symulation_values
     generation = symulation_values.generation
-
+    print(symulation_values.path)
     print("Generation:", generation)
     neural_networks = []
-    for i in range(symulation_values.model_paramiters.number_of_agents):
-        neural_network = nn.Neural_Network(symulation_values.model_paramiters.raycast_number+1, symulation_values.model_paramiters.hidden_layer_depth, symulation_values.model_paramiters.hidden_layer_width, 2)
+    print("Initializing neural networks...")
+    if symulation_values.to_load and symulation_values.path.split("/")[1] == "best_model_paramiters.npy":
+        symulation_values.model_paramiters.number_of_agents = 1
+        neural_network = nn.Neural_Network(symulation_values.model_paramiters.raycast_number+1, symulation_values.model_paramiters.hidden_layer_depth, symulation_values.model_paramiters.hidden_layer_width, 2, symulation_values.model_paramiters.activation_function)
         neural_networks.append(neural_network)
-        if symulation_values.to_load:
-            neural_network.load_from_file(f"Pythone_NN/Saved_models/"+symulation_values.path + f"_car_{i}.npy")
-            generation = int(symulation_values.path.split("_")[4])
+        neural_network.load_from_file(f"Pythone_NN/Saved_models/"+symulation_values.path)
+    else:
+        for i in range(symulation_values.model_paramiters.number_of_agents):
+            neural_network = nn.Neural_Network(symulation_values.model_paramiters.raycast_number+1, symulation_values.model_paramiters.hidden_layer_depth, symulation_values.model_paramiters.hidden_layer_width, 2, symulation_values.model_paramiters.activation_function)
+            neural_networks.append(neural_network)
+            if symulation_values.to_load:
+                print(f"Pythone_NN/Saved_models/"+symulation_values.path + f"_car_{i}.npy")
+                neural_network.load_from_file(f"Pythone_NN/Saved_models/"+symulation_values.path + f"_car_{i}.npy")
+                generation = int(symulation_values.path.split("_")[4])
     state = "udp_init"
  
 def udp_init():
@@ -154,31 +161,33 @@ def running():
     message_recived = sock.receive_json()
     if message_recived["type"] == "FleetState":
         fleet_state = message_recived["data"]
-        # print(fleet_state)
         commands = {"data": {}}
         for car in fleet_state:
             car_id = car['id']
             inputs = car['sensors'] + [car['velocity']]
             fitness = car['fitness']
-            # traveled = car['traveled']
             neural_networks[int(car_id)].forward(inputs)
            
             commands["data"][car_id] = neural_networks[int(car_id)].output_layer.output.tolist() # Convert numpy array to list for JSON serialization
         sock.send_json(udp.Message("Commands", commands).data)
     elif message_recived["type"] == "Generation_Ended":
         # print("Received generation end signal from Godot, starting evolution process...")
-        state = "evolution"
-        for car in message_recived["data"]:
-            car_id = car['id']
-            fitness = car['fitness']
-            traveled = car['traveled']
-            # print(f"Car {car_id} fitness: {fitness}")
-            neural_networks[int(car_id)].fitness = fitness
-
+        if symulation_values.train:
+            state = "evolution"
+            for car in message_recived["data"]:
+                car_id = car['id']
+                fitness = car['fitness']
+                traveled = car['traveled']
+                # print(f"Car {car_id} fitness: {fitness}")
+                neural_networks[int(car_id)].fitness = fitness
+        else:
+            state = "ensuring_connection"
+            time.sleep(0.5)
 
 def evolution():
     global state, message_recived, generation, neural_networks, best_time
     
+
     print("Generation:", generation)
     if generation % 50 == 0:
         for i in range(symulation_values.model_paramiters.number_of_agents):
@@ -194,6 +203,15 @@ def evolution():
         #     best_time = (car['fitness']-400)/-10
         #     neural_networks[int(car["id"])].save_to_file(FILE_PATH_BEST_MODEL)
             # print(f"New best time: {best_time} seconds")
+    if top_5[0]["fitness"] > symulation_values.model_paramiters.best_fittness:
+        symulation_values.model_paramiters.best_fittness = top_5[0]["fitness"]
+        neural_networks[int(top_5[0]["id"])].save_to_file(save_path + f"/best_model_paramiters.npy")
+        with open(save_path + "/paramiters.json", "r") as f:
+            paramiters_data = json.load(f)
+        paramiters_data["best_fittness"] = symulation_values.model_paramiters.best_fittness
+        with open(save_path + "/paramiters.json", "w") as f:
+            json.dump(paramiters_data, f)
+        print(f"New best fitness: {symulation_values.model_paramiters.best_fittness}")
 
     for i in range(symulation_values.model_paramiters.number_of_agents):
         if i not in [int(car["id"]) for car in top_5]:
@@ -208,7 +226,12 @@ def evolution():
             parent2 = neural_networks[int(top_5[parent2_id]["id"])]
             # print(int(top_5[parent1_id]["id"]), int(top_5[parent2_id]["id"]))
             # print(f"Performing crossover between parent {parent1_id} (fitness: {parent1.fitness}) and parent {parent2_id} (fitness: {parent2.fitness}) for child {i}")
-            neural_networks[i].aritmetic_crossover(parent1, parent2)
+            
+            
+            if symulation_values.model_paramiters.mutation_function == "uniform_crossover":
+                neural_networks[i].uniform_crossover(parent1, parent2)
+            elif symulation_values.model_paramiters.mutation_function == "arithmetic_crossover":
+                neural_networks[i].arithmetic_crossover(parent1, parent2)
             neural_networks[i].mutate(symulation_values.model_paramiters.mutation_rate)
 
     state = "ensuring_connection"
@@ -222,7 +245,6 @@ def evolution():
 def main():
     global state, model_paramiters, symulation_values
 
-
     state = "menu"
     model_paramiters = nn.Model_Paramiters(0,0,0,0,0,"","")
     symulation_values = Symulation_Values("menu", False, "", "", False, 0, 0, model_paramiters)
@@ -233,18 +255,3 @@ def main():
 if __name__ == "__main__":
     main()
 
-
-
-#gauss
-
-# sample = np.random.normal(0,0.5,None)
-# print(sample)
-
-
-
-#Point Crossover
-#Uniform Crossover
-#Arythmetic Crossover
-
-#1 - 2 najlepszych zawsze kopiowanych w niezmienionej formie
-#mutacja 

@@ -12,11 +12,10 @@ class Activation_ReLU:
         self.output = np.maximum(0, inputs)
         return self.output
 
-# class Activation_Softmax:
-#     def forward(self, inputs):
-#         exp_values = np.exp(inputs - np.max(inputs, axis=1, keepdims=True))
-#         probabilities = exp_values / np.sum(exp_values, axis=1, keepdims=True)
-#         self.output = probabilities
+class Activation_Sigmoid:
+    def forward(self, inputs):
+        self.output = 1/(1+np.exp(-inputs))
+        return self.output
 
 class Activation_Tanh:
     def forward(self, inputs):
@@ -25,23 +24,30 @@ class Activation_Tanh:
 
 
 class Neural_Network:
-    def __init__(self, n_inputs, n_hidden_layers, n_hidden_layers_neurons, n_outputs):
+    def __init__(self, n_inputs, n_hidden_layers, n_hidden_layers_neurons, n_outputs, activation_function_choice):
         self.input_layer = Layer_Dense(n_inputs,n_hidden_layers_neurons)
         self.hidden_layers = []
         for i in range(n_hidden_layers):
             self.hidden_layers.append(Layer_Dense(n_hidden_layers_neurons, n_hidden_layers_neurons))
         self.output_layer = Layer_Dense(n_hidden_layers_neurons, n_outputs)
+        self.activation_function = activation_function_choice
     
     def forward(self, inputs):
         self.input_layer.forward(inputs)
-        hidden_output = Activation_ReLU().forward(self.input_layer.output)
+        hidden_output = self.activate(self.input_layer.output)
         for hidden_layer in self.hidden_layers:
             hidden_layer.forward(hidden_output)
-            hidden_output = Activation_ReLU().forward(hidden_layer.output)
+            hidden_output = self.activate(hidden_layer.output)
         self.output_layer.forward(hidden_output)
         self.output_layer.output = Activation_Tanh().forward(self.output_layer.output)
         return self.output_layer.output
     
+    def activate(self, inputs):
+        if self.activation_function == "relu":
+            return Activation_ReLU().forward(inputs)
+        elif self.activation_function == "sigmoid":
+            return Activation_Sigmoid().forward(inputs)
+
     def get_model_paramiters(self):
         self.model_paramiters = []
         self.model_paramiters.append(self.input_layer.weights)
@@ -82,7 +88,7 @@ class Neural_Network:
         loaded_paramiters_list = loaded_paramiters.tolist()
         self.set_model_paramiters(loaded_paramiters_list)
 
-    def aritmetic_crossover(self, parent1, parent2):
+    def arithmetic_crossover(self, parent1, parent2):
         parent1.get_model_paramiters()
         parent2.get_model_paramiters()
         child_paramiters = []
@@ -92,8 +98,18 @@ class Neural_Network:
             child_paramiters.append(child_paramiter)
         self.set_model_paramiters(child_paramiters)
 
+    def uniform_crossover(self, parent1, parent2):
+        parent1.get_model_paramiters()
+        parent2.get_model_paramiters()
+        child_paramiters = []
+        for p1, p2 in zip(parent1.model_paramiters, parent2.model_paramiters):
+            mask = np.random.rand(*p1.shape) < 0.5
+            child_paramiter = np.where(mask, p1, p2)
+            child_paramiters.append(child_paramiter)
+        self.set_model_paramiters(child_paramiters)
+
 class Model_Paramiters:
-    def __init__(self, number_of_agents, mutation_rate, raycast_number, hidden_layer_width, hidden_layer_depth, activation_function_choice, mutation_function_choice):
+    def __init__(self, number_of_agents, mutation_rate, raycast_number, hidden_layer_width, hidden_layer_depth, activation_function_choice, mutation_function_choice, best_fittness=0):
         self.number_of_agents = number_of_agents
         self.mutation_rate = mutation_rate
         self.raycast_number = raycast_number
@@ -101,7 +117,7 @@ class Model_Paramiters:
         self.hidden_layer_depth = hidden_layer_depth
         self.activation_function = activation_function_choice
         self.mutation_function = mutation_function_choice
-
+        self.best_fittness = best_fittness
     def to_dict(self):
         return {
             "number_of_agents": self.number_of_agents,
@@ -110,5 +126,6 @@ class Model_Paramiters:
             "hidden_layer_width": self.hidden_layer_width,
             "hidden_layer_depth": self.hidden_layer_depth,
             "activation_function": self.activation_function,
-            "mutation_function": self.mutation_function
+            "mutation_function": self.mutation_function,
+            "best_fittness": self.best_fittness
         }

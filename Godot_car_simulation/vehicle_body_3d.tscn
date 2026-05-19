@@ -280,20 +280,32 @@ text = "0km/h"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 target_position = Vector3(0, 0, 6)
 
-[node name="RaycastLeft" type="RayCast3D" parent="." unique_id=1352071899]
+[node name="RaycastLeftFront" type="RayCast3D" parent="." unique_id=1352071899]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 target_position = Vector3(4, 0, 4)
 
-[node name="RaycastRight" type="RayCast3D" parent="." unique_id=551044837]
+[node name="RaycastRightFront" type="RayCast3D" parent="." unique_id=551044837]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 target_position = Vector3(-4, 0, 4)
 
-[node name="RaycastRight2" type="RayCast3D" parent="." unique_id=1833337018]
+[node name="RaycastRight" type="RayCast3D" parent="." unique_id=1833337018]
 transform = Transform3D(0.70710677, 0, -0.70710677, 0, 1, 0, 0.70710677, 0, 0.70710677, 0, 0.5, 0)
 target_position = Vector3(-4, 0, 4)
 
-[node name="RaycastLeft2" type="RayCast3D" parent="." unique_id=1948638546]
+[node name="RaycastLeft" type="RayCast3D" parent="." unique_id=1948638546]
 transform = Transform3D(0.70710677, 0, 0.70710677, 0, 1, 0, -0.70710677, 0, 0.70710677, 0, 0.5, 0)
 target_position = Vector3(4, 0, 4)
+
+[node name="RaycastRightBack" type="RayCast3D" parent="." unique_id=143472269]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0.5, 0)
+target_position = Vector3(4, 0, 4)
+
+[node name="RaycastLeftBack" type="RayCast3D" parent="." unique_id=27498794]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0.5, 0)
+target_position = Vector3(-4, 0, 4)
+
+[node name="RaycastBack" type="RayCast3D" parent="." unique_id=921315458]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0.5, 0)
+target_position = Vector3(0, 0, 6)
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
