@@ -66,8 +66,8 @@ ACTIVATION_FUNCTION_MENU = Menu("Select an activation function:", {
 })
 
 MUTATION_FUNCTION_MENU = Menu("Select a mutation function:", {  
-    "UNIFORM CROSSOVER": "uniform_crossover",
     "ARITHMETIC CROSSOVER": "arithmetic_crossover",
+    "UNIFORM CROSSOVER": "uniform_crossover",
 })
 
 directories = [f.name for f in path.Path("Pythone_NN/Saved_models").iterdir() if f.is_dir()]

@@ -39,7 +39,6 @@ func _physics_process(_delta):
 				spawn_point = $SpawnPoint2
 				track_path_node = $TrackPath2
 			state = "spawn"
-			print("Game values received:", game_values)
 			# print(game_values["model_parameters"]["number_of_agents"])
 
 	elif state == "spawn":

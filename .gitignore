@@ -2,6 +2,7 @@
 *.pyc
 *.zip
 *.json
+*.rar
 
 .godot/
 *.import
