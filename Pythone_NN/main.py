@@ -116,9 +116,6 @@ def get_max_folder_number(directory_path):
 def nn_initialization():
     global state, neural_networks, generation, best_time, plot, symulation_values
 
-    if symulation_values.train:
-        plot_initialization()
-
     generation = symulation_values.generation
     neural_networks = []
 
@@ -144,12 +141,21 @@ def plot_initialization():
     average_plot_data_fitness = pl.Plot_Data()
     best_plot_data_traveled = pl.Plot_Data()
     average_plot_data_traveled = pl.Plot_Data()
+
     if symulation_values.to_load:
-        best_plot_data_fitness .load_from_file(f"{save_path}/best_plot_data_fitness.npy")
-        average_plot_data_fitness.load_from_file(f"{save_path}/average_plot_data_fitness.npy")
-        best_plot_data_traveled.load_from_file(f"{save_path}/best_plot_data_traveled.npy")
-        average_plot_data_traveled.load_from_file(f"{save_path}/average_plot_data_traveled.npy")
+        load_and_trim(best_plot_data_fitness, f"{save_path}/best_plot_data_fitness.npy")
+        load_and_trim(average_plot_data_fitness, f"{save_path}/average_plot_data_fitness.npy")
+        load_and_trim(best_plot_data_traveled, f"{save_path}/best_plot_data_traveled.npy")
+        load_and_trim(average_plot_data_traveled, f"{save_path}/average_plot_data_traveled.npy")
+    
     state = "udp_init"
+
+def load_and_trim(plot, filename):
+    plot.load_from_file(filename)
+    if generation is not None:
+        plot.x_data = plot.x_data[:generation]
+        plot.y_data = plot.y_data[:generation]
+
 
 def udp_init():
     global sock, state 
@@ -204,6 +210,7 @@ def saving_generation_data():
     print_top_5_cars(top_5)
     save_plot_data()
     save_best_model()
+    save_model_paramiters_to_file()
 
     state = "evolution"
 

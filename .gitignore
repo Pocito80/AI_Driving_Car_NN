@@ -3,6 +3,7 @@
 *.zip
 *.json
 *.rar
+*.mp4
 
 .godot/
 *.import
