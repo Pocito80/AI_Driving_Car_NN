@@ -5,7 +5,8 @@ const UDPModule = preload("res://udp.gd")
 @export var car_scene: PackedScene
 @onready var track_path_node: Path3D = $TrackPath
 @onready var spawn_point = $SpawnPoint
-
+@onready var cam = $Camera3D
+@onready var camera_spawn_point = $Marker3D
 
 var connection_established = false
 
@@ -36,6 +37,7 @@ func _physics_process(_delta):
 			if game_values["map"] == "map_2":
 				spawn_point = $SpawnPoint2
 				track_path_node = $TrackPath2
+				cam.global_transform = camera_spawn_point.global_transform
 			state = "spawn"
 
 	elif state == "spawn":
