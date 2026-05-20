@@ -1,9 +1,7 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import neural_network as nn
 import udp
 import time
-import questionary as qt
 import plot as pl
 import menu as m
 import json
@@ -78,7 +76,7 @@ def load_paramiters_from_file():
     if symulation_values.to_load:
       
         folder_name = symulation_values.path.split("/")[0]
-        with open(f"Pythone_NN/Saved_models/{folder_name}/paramiters.json", "r") as f:
+        with open(f"Python_NN/Saved_models/{folder_name}/paramiters.json", "r") as f:
             paramiters_data = json.load(f)
             model_paramiters = nn.Model_Paramiters(
                 paramiters_data["number_of_agents"],
@@ -91,13 +89,13 @@ def load_paramiters_from_file():
                 paramiters_data["best_fittness"]
             )
             symulation_values.model_paramiters = model_paramiters
-            save_path = f"Pythone_NN/Saved_models/{folder_name}"
+            save_path = f"Python_NN/Saved_models/{folder_name}"
     else:
-        max_folder_number = get_max_folder_number("Pythone_NN/Saved_models")
+        max_folder_number = get_max_folder_number("Python_NN/Saved_models")
         folder_name = f"model_{max_folder_number+1}"
-        folder_path = f"Pythone_NN/Saved_models/{folder_name}"
+        folder_path = f"Python_NN/Saved_models/{folder_name}"
         os.makedirs(folder_path, exist_ok=True)
-        with open(f"Pythone_NN/Saved_models/{folder_name}/paramiters.json", "w") as f:
+        with open(f"Python_NN/Saved_models/{folder_name}/paramiters.json", "w") as f:
             json.dump(symulation_values.model_paramiters.to_dict(), f)
         save_path = folder_path
    
@@ -121,9 +119,9 @@ def nn_initialization():
 
     if symulation_values.to_load and symulation_values.path.split("/")[1] == "best_model_paramiters.npy":
         symulation_values.model_paramiters.number_of_agents = 1
-        path = f"Pythone_NN/Saved_models/{symulation_values.path}"
+        path = f"Python_NN/Saved_models/{symulation_values.path}"
     elif symulation_values.to_load:
-        path = f"Pythone_NN/Saved_models/{symulation_values.path}_car_{{0}}.npy"
+        path = f"Python_NN/Saved_models/{symulation_values.path}_car_{{0}}.npy"
         generation = int(symulation_values.path.split("_")[4])
 
     for i in range(symulation_values.model_paramiters.number_of_agents):

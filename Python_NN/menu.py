@@ -70,7 +70,7 @@ MUTATION_FUNCTION_MENU = Menu("Select a mutation function:", {
     "UNIFORM CROSSOVER": "uniform_crossover",
 })
 
-directories = [f.name for f in path.Path("Pythone_NN/Saved_models").iterdir() if f.is_dir()]
+directories = [f.name for f in path.Path("Python_NN/Saved_models").iterdir() if f.is_dir()]
 FOLDER_TREE_MENU = Menu("Select a folder to load:", {
     **{directory: directory for directory in directories},
     "BACK": "back_to_previous_menu"
@@ -84,7 +84,7 @@ RAYCAST_NUMBER_MENU = Menu("Select the number of raycasts:", {
 })
 
 def find_highest_generation(folder_name):
-    selected_folder = path.Path(f"Pythone_NN/Saved_models/{folder_name}")
+    selected_folder = path.Path(f"Python_NN/Saved_models/{folder_name}")
     files = [f for f in selected_folder.iterdir() if f.is_file()]
 
     generation_numbers = []
@@ -172,15 +172,15 @@ def load_model_from_folder(folder_name, symulation_values):
         symulation_values.path = f"{folder_name}/best_model_paramiters.npy"
     
 def set_new_model_paramiters(symulation_values):
-    menu = InputMenu("Number of agents:")
-    number_of_agents = int(menu.display(1,50))
+    menu = InputMenu("Number of agents (10-50):")
+    number_of_agents = int(menu.display(10,50))
     menu = InputMenu("Mutation rate (0-1):")
     mutation_rate = float(menu.display(0,1))
     menu = RAYCAST_NUMBER_MENU
     raycast_number = menu.display()
-    menu = InputMenu("Hidden layer width:")
+    menu = InputMenu("Hidden layer width (1-100):")
     hidden_layer_width = int(menu.display(1,100))
-    menu = InputMenu("Hidden layer depth:")
+    menu = InputMenu("Hidden layer depth (1-10):")
     hidden_layer_depth = int(menu.display(1,10))
     menu = ACTIVATION_FUNCTION_MENU
     activation_function_choice = menu.display()

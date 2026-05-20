@@ -50,11 +50,11 @@ plot_data = Plot_Data()
 plot_data2 = Plot_Data()
 
 
-# plot_data.load_from_file("Pythone_NN/Saved_models/model_3/best_plot_data_fitness.npy")
-# plot_data2.load_from_file("Pythone_NN/Saved_models/model_3/average_plot_data_fitness.npy")
+# plot_data.load_from_file("Python_NN/Saved_models/model_14/best_plot_data_fitness.npy")
+# plot_data2.load_from_file("Python_NN/Saved_models/model_14/average_plot_data_fitness.npy")
 
-plot_data2.load_from_file("Pythone_NN/Saved_models/model_12/best_plot_data_traveled.npy")
-plot_data.load_from_file("Pythone_NN/Saved_models/model_12/average_plot_data_traveled.npy")
+# plot_data2.load_from_file("Python_NN/Saved_models/model_14/best_plot_data_traveled.npy")
+# plot_data.load_from_file("Python_NN/Saved_models/model_14/average_plot_data_traveled.npy")
 
-plot.update_array(plot_data.x_data, plot_data.y_data, plot_data2.x_data, plot_data2.y_data)
+# plot.update_array(plot_data.x_data, plot_data.y_data, plot_data2.x_data, plot_data2.y_data)
 # plot.show("Average traveled over generations", "Generation", "Average traveled")

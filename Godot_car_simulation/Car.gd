@@ -66,15 +66,11 @@ func _physics_process(delta):
 		
 	if alive:
 		time += delta
-	# 	fitness += (linear_velocity.length() * 3.6)/1000
 
 	if  time > 40 and alive:
-		# fitness = -10 * time + 400
-		# print("Car", self.name, "finished with fitness:", fitness, "and time:", time,"collected:")
 		end_live()
 
 func hit_checkpoint(index: int):
-	# print("Car", self.name, "hit checkpoint", index, "target was", target_checkpoint)
 	if index == target_checkpoint:
 		checkpoints_collected += 1
 		target_checkpoint += 1
@@ -86,7 +82,6 @@ func get_state() -> Dictionary:
 	var distances = []
 	for ray in rays:
 		distances.append(ray.get_collision_point().distance_to(ray.global_position) if ray.is_colliding() else 20.0)
-		# print("Car", self.name, "ray", ray.name, "distance:", distances[-1])
 	return {
 		"id": self.name,
 		"sensors": distances,
@@ -100,18 +95,10 @@ func apply_ai_command(throttle: float, steer: float):
 		current_throttle = throttle
 		current_steer = steer
 		track_distance()
-		# if self.name == "44":
-			# print("Car", self.name, "Distance along track:", distance_along_track)
-		#print(current_steer, current_throttle)
-		#print(target_checkpoint)
 
 func _on_body_entered(body):
 	if body.is_in_group("walls") and alive:
-		# print("BOOM!")
 		end_live()
-		#print(time)
-		#print(fitness)
-		#get_tree().call_deferred("reload_current_scene")
 
 
 func track_distance():
@@ -129,9 +116,7 @@ func end_live():
 	current_throttle = 0
 	current_steer = 0
 	track_distance()
-	# var distance_traveled = distance_along_track
-	# print("Car", self.name, "traveled distance:", distance_along_track, "meters", "total track length:", total_track_length, "meters")
 	
 
 	fitness += checkpoints_collected * 100 + distance_along_track
-	# print("Car", self.name, "ended live with fitness:", fitness, "and time:", time,"collected:", checkpoints_collected)
+

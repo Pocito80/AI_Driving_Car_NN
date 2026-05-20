@@ -5,7 +5,6 @@ const UDPModule = preload("res://udp.gd")
 @export var car_scene: PackedScene
 @onready var track_path_node: Path3D = $TrackPath
 @onready var spawn_point = $SpawnPoint
-# @onready var spawn_point
 
 
 var connection_established = false
@@ -23,7 +22,6 @@ func _physics_process(_delta):
 	if state == "ensuring_connection":
 		udp.send_json(UDPModule.Message.new("Connection", "Connecting_to_PY").data)
 		var message_recived = udp.receive_json()
-		# print("Received message from Python:", message_recived)
 		if message_recived and message_recived["type"] == "Connection" and message_recived["data"] == "Connecting_to_GD":
 			print("Handshake successful! We are synchronized.")
 			state = "reciving_paramiters"
@@ -39,7 +37,6 @@ func _physics_process(_delta):
 				spawn_point = $SpawnPoint2
 				track_path_node = $TrackPath2
 			state = "spawn"
-			# print(game_values["model_parameters"]["number_of_agents"])
 
 	elif state == "spawn":
 		spawn_cars(int(game_values["model_paramiters"]["number_of_agents"]))
@@ -47,21 +44,18 @@ func _physics_process(_delta):
 	
 	elif state == "running":
 
-		# print(Engine.get_frames_per_second())
 		
 		while udp.udp.get_available_packet_count() > 0:
 			var message_recived = udp.receive_json()
 			
 			if message_recived and message_recived["type"] == "Commands":
 				var commands = message_recived["data"]
-				# print("Received commands:", commands)
 				distribute_commands(commands)
 
 		var frame_state = []
 		var cars_alive = 0
 		var cars = get_tree().get_nodes_in_group("player")
 		
-		# print(cars)
 		for car in cars:
 			frame_state.append(car.get_state())
 			if car.alive:
@@ -76,7 +70,6 @@ func _physics_process(_delta):
 
 		
 			get_tree().call_deferred("reload_current_scene")
-			# state = "ensure_connection"
 	
 		udp.send_json(UDPModule.Message.new("FleetState", frame_state).data)
 			
