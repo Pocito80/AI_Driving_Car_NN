@@ -1,6 +1,7 @@
 import questionary as qt
 import pathlib as path
 import re
+import json
 import neural_network as nn
 
 class Menu:
@@ -45,6 +46,7 @@ MAIN_MENU = Menu("Select an option:", {
 TRAINING_MENU = Menu("Select a training option:", {
     "START NEW TRAINING": "start_new_training",
     "CONTINUE TRAINING": "continue_training",
+    "MULTI TRAINING": "multi_training",
     "BACK": "back_to_previous_menu"
 })
 
@@ -130,8 +132,67 @@ def training_menu(symulation_values):
             set_new_model_paramiters(symulation_values)
         case "continue_training":
             folder_selection_menu(symulation_values)
+        case "multi_training":
+            multi_training_menu(symulation_values)
         case "back_to_previous_menu":
             main_menu(symulation_values)
+
+def multi_training_menu(symulation_values):
+    file_name = "Python_NN/batch_paramiters.json"
+
+    try:
+        parameter_sets = load_parameter_sets(file_name)
+    except (OSError, ValueError, KeyError) as error:
+        print(f"Could not load parameter file: {error}")
+        training_menu(symulation_values)
+        return
+
+    if not parameter_sets:
+        print("The parameter file does not contain any parameter sets.")
+        training_menu(symulation_values)
+        return
+
+    symulation_values.batch_paramiters = parameter_sets
+    symulation_values.batch_index = 0
+    symulation_values.model_paramiters = parameter_sets[0]
+    symulation_values.train = True
+    symulation_values.to_load = False
+    symulation_values.generation = 0
+    symulation_values.state = "selection_done"
+
+def load_parameter_sets(file_name):
+    parameter_sets = []
+    with open(file_name, "r", encoding="utf-8") as file:
+        for line_number, line in enumerate(file, 1):
+            if line.strip():
+                parameter_sets.append(
+                    create_model_paramiters(
+                        _load_parameter_line(line, line_number)
+                    )
+                )
+    return parameter_sets
+
+def create_model_paramiters(data):
+    return nn.Model_Paramiters(
+        data["number_of_agents"],
+        data["mutation_rate"],
+        data["raycast_number"],
+        data["hidden_layer_width"],
+        data["hidden_layer_depth"],
+        data["activation_function"],
+        data["mutation_function"],
+        data.get("best_fittness", 0),
+    )
+
+def _load_parameter_line(line, line_number):
+    try:
+        data = json.loads(line)
+    except json.JSONDecodeError as error:
+        raise ValueError(f"line {line_number} is not valid JSON: {error.msg}") from error
+    if not isinstance(data, dict):
+        raise ValueError(f"line {line_number} must contain a JSON object")
+    return data
+
 
 def folder_selection_menu(symulation_values):
     menu = FOLDER_TREE_MENU

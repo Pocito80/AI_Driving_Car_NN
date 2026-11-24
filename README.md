@@ -40,6 +40,9 @@ python Python_NN/main.py
 2. The menu allows:
 - Starting new training (choose number of agents, mutation rate, raycast count, hidden layer width/depth, activation and mutation functions).
 - Continuing training from an existing folder in `Saved_models/`.
+- Multi training from a JSON-lines file. Select `MULTI TRAINING`, provide the file
+  path, and the program trains each line for 1000 generations in a separate
+  `Saved_models/model_<N>` folder.
 - Loading a model for inference (load a saved generation or the `best_model_paramiters.npy`).
 
 3. When running, the Python backend opens a UDP server and waits for a Godot client to connect. Ensure the Godot project is started before the Python backend tries to connect (on default UDP server uses `127.0.0.1` ports `4242` and `4243` make sure that you have this ports free).

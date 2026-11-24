@@ -67,7 +67,7 @@ func _physics_process(delta):
 	if alive:
 		time += delta
 
-	if  time > 40 and alive:
+	if  time > 30 and alive:
 		end_live()
 
 func hit_checkpoint(index: int):
